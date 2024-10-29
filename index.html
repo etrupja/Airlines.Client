@@ -8,7 +8,7 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light" onmouseover="this.style.color='red'" onclick="helloThere()">
+    <nav onclick="navbarClicked()" class="navbar navbar-expand-lg navbar-light bg-light" onmouseover="this.style.color='red'" onclick="helloThere()">
         <div class="container-fluid">
             <a class="navbar-brand" href="/index.html">Airline Ticket System</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,15 +32,11 @@
 
     <!-- Main Content -->
     <div class="container mt-5">
-        <h1 class="text-center">Welcome to the Airline Ticket System</h1>
-        <p class="text-center mt-4">Use the navigation bar to manage airlines, destinations, or book a ticket.</p>
+        <h1 onclick="updatePValue()" id="homePageH1" class="text-center">Welcome to the Airline Ticket System</h1>
+        <p id="homePageP" class="text-center mt-4">Use the navigation bar to manage airlines, destinations, or book a ticket.</p>
     </div>
 
-    <script>
-        function helloThere() {
-            alert('Hello there!');
-        }
-    </script>
+    <script src="/scripts/index.js"></script>
 
 </body>
 </html>
