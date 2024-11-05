@@ -1,15 +1,20 @@
-function navbarClicked() {
-    alert('Navbar clicked - external file');
-}
+setInterval(() => {
+  //Get the current date time
+  let date = new Date();
 
-function updatePValue(){
-    document.getElementById('homePageP').innerHTML = 'New value';
-}
+  let year = date.getFullYear();
+  let month = date.getMonth();
+  let day = date.getDate();
 
-function logFormInfo(event){
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  let seconds = date.getSeconds();
 
-    event.preventDefault();
+  let fullDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-    let airlineNameValue = document.getElementById('airlineName').value;
-    alert('Airline name: ' + airlineNameValue);
-}
+  document.getElementById("currentDate").innerText = fullDateTime;
+}, 1000);
+
+// setTimeout(() => {
+//   alert("Hello World");
+// }, 10000);
