@@ -1,7 +1,3 @@
-function navbarClicked() {
-  alert("Navbar clicked - external file");
-}
-
 function updatePValue() {
   document.getElementById("homePageP").innerHTML = "New value";
 }
