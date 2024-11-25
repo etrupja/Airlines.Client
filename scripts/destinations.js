@@ -1,21 +1,44 @@
-let destinationCityInput = document.getElementById("destinationCity");
-let priceInput = document.getElementById("price");
-let dateInput = document.getElementById("date");
-let airlineSelect = document.getElementById("airline");
-let travelTimeInput = document.getElementById("travelTime");
-let destinationsList = document.getElementById("destinationsList");
-let addDestinationBtn = document.getElementById("addDestinationBtn");
-let updateDestinationBtn = document.getElementById("updateDestinationBtn");
-let destinationIndexInput = document.getElementById("destinationIndex");
+// jQuery element references (unchanged)
+const $destinationCityInput = $("#destinationCity");
+const $priceInput = $("#price");
+const $dateInput = $("#date");
+const $airlineSelect = $("#airline");
+const $travelTimeInput = $("#travelTime");
+const $destinationsList = $("#destinationsList");
+const $addDestinationBtn = $("#addDestinationBtn");
+const $updateDestinationBtn = $("#updateDestinationBtn");
+const $destinationIndexInput = $("#destinationIndex");
+
+// Document ready handler (unchanged)
+$(document).ready(function () {
+  loadAirlines();
+  loadDestinations();
+
+  $addDestinationBtn.on("click", saveDestination);
+  $updateDestinationBtn.on("click", updateDestination);
+});
+
+// Helper function to get airline name by ID (existing function)
+function getAirlineName(airlineId) {
+  const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
+  const airline = airlines.find((airline) => airline.id === airlineId);
+  return airline ? airline.name : "Unknown Airline";
+}
+
+// Helper function to get destination by ID
+function getDestinationName(destinationId) {
+  const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
+  const destination = destinations.find((dest) => dest.id === destinationId);
+  return destination ? destination.city : "Unknown Destination";
+}
 
 function loadAirlines() {
   const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
-  airlineSelect.innerHTML = "";
+  $airlineSelect.empty();
+
   airlines.forEach((airline) => {
-    const option = document.createElement("option");
-    option.value = airline.id;
-    option.textContent = airline.name;
-    airlineSelect.appendChild(option);
+    const $option = $("<option></option>").val(airline.id).text(airline.name);
+    $airlineSelect.append($option);
   });
 }
 
@@ -25,41 +48,51 @@ function loadDestinations() {
 }
 
 function displayDestinations(destinations) {
-  destinationsList.innerHTML = "";
+  $destinationsList.empty();
+
   destinations.forEach((destination, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${destination.city}</td>
-      <td>${destination.airline}</td>
-      <td>${destination.price}</td>
-      <td>${destination.travelTime}</td>
-      <td>${destination.date}</td>
-      <td>
-        <button class="btn btn-warning btn-sm" onclick="editDestination('${
-          destination.id
-        }')">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteDestination('${
-          destination.id
-        }')">Delete</button>
-      </td>
-    `;
-    destinationsList.appendChild(row);
+    // Get the airline name for display
+    const airlineName = getAirlineName(destination.airline);
+    // const destinationName = getDestinationName(destination.id);
+
+    const $row = $(`
+      <tr>
+        <td>${index + 1}</td>
+        <td>${destination.city}</td>
+        <td>${airlineName}</td>
+        <td>$${parseFloat(destination.price).toFixed(2)}</td>
+        <td>${destination.travelTime} hrs</td>
+        <td>${new Date(destination.date).toLocaleDateString()}</td>
+        <td>
+          <button class="btn btn-warning btn-sm edit-destination" data-id="${
+            destination.id
+          }">Edit</button>
+          <button class="btn btn-danger btn-sm delete-destination" data-id="${
+            destination.id
+          }">Delete</button>
+        </td>
+      </tr>
+    `);
+
+    $destinationsList.append($row);
   });
 }
 
+// Save destination (store ID but display name)
 function saveDestination(event) {
   event.preventDefault();
   const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
   const id = Math.random().toString(36);
+
   const destination = {
     id,
-    city: destinationCityInput.value.trim(),
-    price: priceInput.value,
-    date: dateInput.value,
-    airline: airlineSelect.value,
-    travelTime: travelTimeInput.value,
+    city: $destinationCityInput.val().trim(),
+    price: parseFloat($priceInput.val()).toFixed(2),
+    date: $dateInput.val(),
+    airline: $airlineSelect.val(), // Store airline ID
+    travelTime: parseFloat($travelTimeInput.val()).toFixed(1),
   };
+
   destinations.push(destination);
   localStorage.setItem("destinations", JSON.stringify(destinations));
   loadDestinations();
@@ -68,15 +101,16 @@ function saveDestination(event) {
 function editDestination(id) {
   const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
   const destination = destinations.find((dest) => dest.id === id);
+
   if (destination) {
-    destinationCityInput.value = destination.city;
-    priceInput.value = destination.price;
-    dateInput.value = destination.date;
-    airlineSelect.value = destination.airline;
-    travelTimeInput.value = destination.travelTime;
-    destinationIndexInput.value = id;
-    addDestinationBtn.classList.add("d-none");
-    updateDestinationBtn.classList.remove("d-none");
+    $destinationCityInput.val(destination.city);
+    $priceInput.val(destination.price);
+    $dateInput.val(destination.date);
+    $airlineSelect.val(destination.airline); // Use airline ID for select
+    $travelTimeInput.val(destination.travelTime);
+    $destinationIndexInput.val(id);
+    $addDestinationBtn.addClass("d-none");
+    $updateDestinationBtn.removeClass("d-none");
   }
 }
 
@@ -84,19 +118,22 @@ function updateDestination(event) {
   event.preventDefault();
   const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
   const destination = destinations.find(
-    (dest) => dest.id === destinationIndexInput.value
+    (dest) => dest.id === $destinationIndexInput.val()
   );
+
   if (destination) {
-    destination.city = destinationCityInput.value.trim();
-    destination.price = priceInput.value;
-    destination.date = dateInput.value;
-    destination.airline = airlineSelect.value;
-    destination.travelTime = travelTimeInput.value;
+    destination.city = $destinationCityInput.val().trim();
+    destination.price = parseFloat($priceInput.val()).toFixed(2);
+    destination.date = $dateInput.val();
+    destination.airline = $airlineSelect.val(); // Store airline ID
+    destination.travelTime = parseFloat($travelTimeInput.val()).toFixed(1);
   }
+
   localStorage.setItem("destinations", JSON.stringify(destinations));
   loadDestinations();
 }
 
+// Delete destination (unchanged)
 function deleteDestination(id) {
   const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
   const updatedDestinations = destinations.filter(
@@ -106,7 +143,13 @@ function deleteDestination(id) {
   loadDestinations();
 }
 
-addDestinationBtn.addEventListener("click", saveDestination);
-updateDestinationBtn.addEventListener("click", updateDestination);
-loadAirlines();
-loadDestinations();
+// Event delegation (unchanged)
+$destinationsList.on("click", ".edit-destination", function () {
+  const id = $(this).data("id");
+  editDestination(id);
+});
+
+$destinationsList.on("click", ".delete-destination", function () {
+  const id = $(this).data("id");
+  deleteDestination(id);
+});
