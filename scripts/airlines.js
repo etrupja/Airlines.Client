@@ -1,10 +1,10 @@
-// Get references to elements
-const airlineForm = document.getElementById("airlineForm");
-const airlineNameInput = document.getElementById("airlineName");
-const airlineIndexInput = document.getElementById("airlineIndex");
-const addBtn = document.getElementById("addBtn");
-const updateBtn = document.getElementById("updateBtn");
-const airlinesList = document.getElementById("airlinesList");
+// Get references to elements using jQuery
+const $airlineForm = $("#airlineForm");
+const $airlineNameInput = $("#airlineName");
+const $airlineIndexInput = $("#airlineIndex");
+const $addBtn = $("#addBtn");
+const $updateBtn = $("#updateBtn");
+const $airlinesList = $("#airlinesList");
 
 // Generate a unique ID using Math
 function generateUniqueId() {
@@ -19,19 +19,20 @@ function loadAirlines() {
 
 // Display airlines in the table
 function displayAirlines(airlines) {
-  airlinesList.innerHTML = "";
+  $airlinesList.empty();
   airlines.forEach((airline) => {
-    const row = document.createElement("tr");
+    const $row = $("<tr></tr>");
 
-    row.innerHTML = `
+    $row.html(`
       <td>${airline.id}</td>
       <td>${airline.name}</td>
       <td>
-        <button class="btn btn-warning btn-sm" onclick="editAirline('${airline.id}')">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteAirline('${airline.id}')">Delete</button>
+        <button class="btn btn-warning btn-sm edit-btn" data-id="${airline.id}">Edit</button>
+        <button class="btn btn-danger btn-sm delete-btn" data-id="${airline.id}">Delete</button>
       </td>
-    `;
-    airlinesList.appendChild(row);
+    `);
+
+    $airlinesList.append($row);
   });
 }
 
@@ -39,10 +40,10 @@ function displayAirlines(airlines) {
 function saveAirline(event) {
   event.preventDefault();
   const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
-  const airlineName = airlineNameInput.value.trim();
-  const id = airlineIndexInput.value || generateUniqueId();
+  const airlineName = $airlineNameInput.val().trim();
+  const id = $airlineIndexInput.val() || generateUniqueId();
 
-  if (airlineIndexInput.value) {
+  if ($airlineIndexInput.val()) {
     // Update existing airline by ID
     const airline = airlines.find((airline) => airline.id === id);
     if (airline) {
@@ -63,10 +64,10 @@ function editAirline(id) {
   const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
   const airline = airlines.find((airline) => airline.id === id);
   if (airline) {
-    airlineNameInput.value = airline.name;
-    airlineIndexInput.value = id;
-    addBtn.classList.add("d-none");
-    updateBtn.classList.remove("d-none");
+    $airlineNameInput.val(airline.name);
+    $airlineIndexInput.val(id);
+    $addBtn.addClass("d-none");
+    $updateBtn.removeClass("d-none");
   }
 }
 
@@ -80,15 +81,33 @@ function deleteAirline(id) {
 
 // Reset form after updating
 function resetForm() {
-  airlineNameInput.value = "";
-  airlineIndexInput.value = "";
-  addBtn.classList.remove("d-none");
-  updateBtn.classList.add("d-none");
+  $airlineNameInput.val("");
+  $airlineIndexInput.val("");
+  $addBtn.removeClass("d-none");
+  $updateBtn.addClass("d-none");
 }
 
-// Event listeners
-airlineForm.addEventListener("submit", saveAirline);
-updateBtn.addEventListener("click", saveAirline);
+// Event handlers using jQuery
+$airlineForm.on("submit", saveAirline);
+$updateBtn.on("click", saveAirline);
+
+// Event delegation for dynamically created buttons
+$airlinesList.on("click", ".edit-btn", function () {
+  const id = $(this).data("id");
+  editAirline(id);
+});
+
+$airlinesList.on("click", ".delete-btn", function () {
+  const id = $(this).data("id");
+  deleteAirline(id);
+});
 
 // Load airlines on page load
-loadAirlines();
+$(document).ready(function () {
+  loadAirlines();
+});
+
+// Note: Make sure to include jQuery and Bootstrap in your HTML:
+// <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+// <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+// <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

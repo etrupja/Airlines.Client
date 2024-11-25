@@ -1,31 +1,40 @@
 let pendingBooking = null;
 
+// jQuery document ready
+$(document).ready(function () {
+  // Initialize page
+  $("#dateForm").on("submit", loadDestinationsForDate);
+  loadBookings();
+});
+
 // Load Destinations based on selected date
 const loadDestinationsForDate = (event) => {
   event.preventDefault();
-  const selectedDate = document.getElementById("flightDate").value;
+  const selectedDate = $("#flightDate").val();
   const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
-  const destinationSelect = document.getElementById("destination");
-  destinationSelect.innerHTML = "";
+  const $destinationSelect = $("#destination");
+  $destinationSelect.empty();
 
   const filteredDestinations = destinations.filter(
     (dest) => dest.date === selectedDate
   );
 
   filteredDestinations.forEach((destination, index) => {
-    const option = document.createElement("option");
-    option.text = `${destination.city} (${destination.airline}) - $${destination.price}, ${destination.travelTime} hrs`;
-    option.value = index; // Set value to index to uniquely identify
-    destinationSelect.add(option);
+    const $option = $("<option></option>")
+      .text(
+        `${destination.city} (${destination.airline}) - $${destination.price}, ${destination.travelTime} hrs`
+      )
+      .val(index); // Set value to index to uniquely identify
+    $destinationSelect.append($option);
   });
 
-  document.getElementById("bookingForm").classList.remove("d-none");
+  $("#bookingForm").removeClass("d-none");
 };
 
 // Directly confirm and add booking
 const confirmBookingDirectly = () => {
-  const passengerName = document.getElementById("passengerName").value;
-  const selectedDestinationIndex = document.getElementById("destination").value;
+  const passengerName = $("#passengerName").val();
+  const selectedDestinationIndex = $("#destination").val();
   const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
 
   const selectedDestination = destinations[selectedDestinationIndex]; // Find by index
@@ -50,29 +59,30 @@ const confirmBookingDirectly = () => {
   });
   localStorage.setItem("bookings", JSON.stringify(bookings));
 
-  document.getElementById("passengerName").value = "";
+  $("#passengerName").val("");
   loadBookings();
 };
 
 // Load bookings from localStorage
 const loadBookings = () => {
   const bookings = JSON.parse(localStorage.getItem("bookings")) || [];
-  const bookingsList = document.getElementById("bookingsList");
-  bookingsList.innerHTML = "";
+  const $bookingsList = $("#bookingsList");
+  $bookingsList.empty();
 
   bookings.forEach((booking, index) => {
-    bookingsList.innerHTML += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${booking.passengerName}</td>
-                        <td>${booking.destination.city}</td>
-                        <td>${booking.destination.airline}</td>
-                        <td>$${booking.destination.price}</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger" onclick="deleteBooking(${index})">Delete</button>
-                        </td>
-                    </tr>
-                `;
+    const $row = $(`
+      <tr>
+        <td>${index + 1}</td>
+        <td>${booking.passengerName}</td>
+        <td>${booking.destination.city}</td>
+        <td>${booking.destination.airline}</td>
+        <td>$${booking.destination.price}</td>
+        <td>
+          <button class="btn btn-sm btn-danger delete-booking" data-index="${index}">Delete</button>
+        </td>
+      </tr>
+    `);
+    $bookingsList.append($row);
   });
 };
 
@@ -84,8 +94,13 @@ const deleteBooking = (index) => {
   loadBookings();
 };
 
-// Initialize page
-document
-  .getElementById("dateForm")
-  .addEventListener("submit", loadDestinationsForDate);
-loadBookings();
+// Event delegation for delete buttons
+$("#bookingsList").on("click", ".delete-booking", function () {
+  const index = $(this).data("index");
+  deleteBooking(index);
+});
+
+// Note: Make sure to include jQuery and Bootstrap in your HTML:
+// <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+// <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+// <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
