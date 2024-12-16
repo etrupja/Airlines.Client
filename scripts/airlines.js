@@ -12,9 +12,23 @@ function generateUniqueId() {
 }
 
 // Load airlines from Local Storage
+// function loadAirlines() {
+//   const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
+//   displayAirlines(airlines);
+// }
+
+// Load airlines from API instead of localStorage
 function loadAirlines() {
-  const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
-  displayAirlines(airlines);
+  $.ajax({
+    url: "http://localhost:5201/api/Airlines/GetAirlines",
+    method: "GET",
+    success: function (airlines) {
+      displayAirlines(airlines);
+    },
+    error: function (xhr, status, error) {
+      console.error("Error loading airlines:", error);
+    },
+  });
 }
 
 // Display airlines in the table
