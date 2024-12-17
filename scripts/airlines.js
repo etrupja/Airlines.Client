@@ -11,13 +11,6 @@ function generateUniqueId() {
   return Math.random().toString(36).substring(2, 15);
 }
 
-// Load airlines from Local Storage
-// function loadAirlines() {
-//   const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
-//   displayAirlines(airlines);
-// }
-
-// Load airlines from API instead of localStorage
 function loadAirlines() {
   $.ajax({
     url: "http://localhost:5201/api/Airlines/GetAirlines",
