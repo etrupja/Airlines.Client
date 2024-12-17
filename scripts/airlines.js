@@ -13,8 +13,17 @@ function generateUniqueId() {
 
 // Load airlines from Local Storage
 function loadAirlines() {
-  const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
-  displayAirlines(airlines);
+  // Get airlines from the API
+  $.ajax({
+    url: "http://localhost:5201/api/Airlines/GetAirlines",
+    method: "GET",
+    success: function (response) {
+      displayAirlines(response);
+    },
+    error: function (error) {
+      console.error(error);
+    },
+  });
 }
 
 // Display airlines in the table
