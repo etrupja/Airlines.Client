@@ -52,13 +52,25 @@ function saveAirline(event) {
   const airlineName = $airlineNameInput.val().trim();
 
   if ($airlineIndexInput.val()) {
-    // Update existing airline by ID
-    const airline = airlines.find((airline) => airline.id === id);
-    if (airline) {
-      airline.name = airlineName;
-    }
+    // Update airline
+    const id = $airlineIndexInput.val();
+
+    // Call API EndPoint to update an airline
+    $.ajax({
+      url: `http://localhost:5201/api/Airlines/UpdateAirlineById?airlineId=${id}`,
+      method: "PUT",
+      contentType: "application/json",
+      data: JSON.stringify({ id, name: airlineName }),
+      success: function (response) {
+        loadAirlines();
+      },
+      error: function (error) {
+        console.error(error);
+      },
+    });
   } else {
     // Call API EndPoint to add a new airline
+
     $.ajax({
       url: "http://localhost:5201/api/Airlines/CreateAirline",
       method: "POST",
@@ -72,28 +84,40 @@ function saveAirline(event) {
       },
     });
   }
-
   resetForm();
 }
 
 // Edit airline
 function editAirline(id) {
-  const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
-  const airline = airlines.find((airline) => airline.id === id);
-  if (airline) {
-    $airlineNameInput.val(airline.name);
-    $airlineIndexInput.val(id);
-    $addBtn.addClass("d-none");
-    $updateBtn.removeClass("d-none");
-  }
+  // Call API EndPoint to get airline by ID
+  $.ajax({
+    url: `http://localhost:5201/api/Airlines/GetAirlineById?airlineId=${id}`,
+    method: "GET",
+    success: function (response) {
+      $airlineNameInput.val(response.name);
+      $airlineIndexInput.val(response.id);
+      $addBtn.addClass("d-none");
+      $updateBtn.removeClass("d-none");
+    },
+    error: function (error) {
+      console.error(error);
+    },
+  });
 }
 
 // Delete airline
 function deleteAirline(id) {
-  const airlines = JSON.parse(localStorage.getItem("airlines")) || [];
-  const updatedAirlines = airlines.filter((airline) => airline.id !== id);
-  localStorage.setItem("airlines", JSON.stringify(updatedAirlines));
-  loadAirlines();
+  // Call API EndPoint to delete an airline
+  $.ajax({
+    url: `http://localhost:5201/api/Airlines/DeleteAirlineById?airlineId=${id}`,
+    method: "DELETE",
+    success: function (response) {
+      loadAirlines();
+    },
+    error: function (error) {
+      console.error(error);
+    },
+  });
 }
 
 // Reset form after updating
